@@ -1,0 +1,48 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+}
+.title {
+	text-align: center;
+}
+table {
+	border-collapse: collapse;
+}
+.table {
+	display: table;
+	width: 50%;
+	margin: auto;
+}
+.heading {
+	display: table-row;
+	font-weight: bold;
+	text-align: center;
+}
+.row {
+	display: table-row;
+}
+.cell {
+	display: table-cell;
+	border: thin solid #000;
+	border-width: thin;
+	border-top: 0;
+	border-left: 0;
+	padding-left: 5px;
+	padding-right: 5px;
+	width: 16.6%;
+	height: 3rem;
+	vertical-align: middle;
+	padding: 1rem;
+}
+.cell:first-child {
+	border-left: thin solid #000;
+}
+.heading > .cell {
+	border-top: thin solid #000;
+}
+.background p {
+	text-align: center;
+}
+.resources {
+	width: 50%;
+	margin: auto;
+}
