@@ -42,6 +42,9 @@ table {
 .background p {
 	text-align: center;
 }
+.ratio p {
+	text-align: center;
+}
 .resources {
 	width: 50%;
 	margin: auto;
