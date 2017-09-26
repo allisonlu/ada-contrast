@@ -53,13 +53,6 @@ $.fn.slideFadeToggle = function(easing, callback) {
   return this.animate({ opacity: 'toggle', height: 'toggle' }, 'fast', easing, callback);
 };
 
-function updateColor(color) {
-  var hexColor = "transparent";
-  if (color) {
-    hexColor = color.toHexString();
-  }
-  $('.background').css('background-color', hexColor);
-}
 /*****************************************************/
 
 // given some rgb value, converts standard rgb to values ready for luminance calculation
@@ -105,19 +98,84 @@ function contrastRatio(color1, color2) {
 }
 
 function isPassing(ratio) {
-  if (ratio >= 4.5) {
-    return "Passing - Level AA";
-  }
-  else if (ratio >= 7.99) {
+  if (ratio >= 7.99) {
     return "Passing - Level AAA";
+  }
+  else if (ratio >= 4.5) {
+    return "Passing - Level AA";
   }
   else {
     return "Failing";
   }
 }
 
-console.log(contrastRatio("#3284bf", "#fff"));
-console.log(isPassing(contrastRatio("#3284bf", "#fff")));
+// console.log(contrastRatio("#3284bf", "#fff"));
+// console.log(isPassing(contrastRatio("#3284bf", "#fff")));
+
+
+// var colors = [{
+//     "Hex": "#3284bf",
+//     "RGB": "",
+//     "Sample": "",
+//     "Background": "",
+//     "Contrast Ratio": "",
+//     "P/NP": ""
+//   }, {
+//     "Hex": "#ffc828",
+//     "RGB": "",
+//     "Sample": "",
+//     "Background": "",
+//     "Contrast Ratio": "",
+//     "P/NP": ""
+//   }];
+//
+// function makeTable(data) {
+//   // extract header data
+//   var col = [];
+//   for (var i=0; i<data.length; i++) {
+//     for (var key in data[i]) {
+//       // prevents duplicates
+//       if (col.indexOf(key)===-1) {
+//         col.push(key);
+//       }
+//     }
+//   }
+//
+//   // create table
+//   var table = document.createElement("table");
+//   var tableBody = document.createElement("tbody");
+//   table.appendChild(tableBody);
+//   var tr = document.createElement('tr');
+//   tableBody.appendChild(tr);
+//
+//   // populate header
+//   for (var i=0; i<col.length; i++) {
+//     var th = document.createElement("th");
+//     th.appendChild(document.createTextNode(col[i]));
+//     tr.appendChild(th);
+//   }
+//
+//   // add data
+//   for (var i=0; i<data.length; i++) {
+//     var tr = document.createElement("tr");
+//
+//     for (var j=0; j<col.length; j++) {
+//       var td = document.createElement("td");
+//       td.appendChild(document.createTextNode(data[i][col[j]]));
+//       tr.appendChild(td);
+//     }
+//     tableBody.appendChild(tr);
+//   }
+//
+//   // add data to html
+//   var container = document.getElementById("showData");
+//   container.innerHTML = "";
+//   container.appendChild(table);
+//
+// }
+//
+// makeTable(colors);
+
 
 $(document).ready(function() {
 
@@ -147,71 +205,44 @@ $(document).ready(function() {
   //
   // });
 
-  $('.row > .hex').each( function ( i, el) {
-	  $(this).find('p').html($(this).parent('.row').attr('data-rowcolor'));
-	 });
-  $('.row > .rgb').each( function (i, el) {
-    $(this).find('p').html('(' + hexToRgb($(this).parent('.row').attr('data-rowcolor')) + ')');
+  var classNames = ["hex", "rgb", "sample", "background", "ratio", "pass"];
+
+  // populate table
+  $('.row').each( function(i,el) {
+    $(this).append(document.createElement('td'));
+
   });
-	$('.row > .sample').each( function ( i, el) {
-		$(this).css('background-color', $(this).parent('.row').attr('data-rowcolor'));
-	});
-  $('.row > .background').each( function ( i, el) {
-    $(this).find('p').html("TEST");
-    $(this).css('color', $(this).parent('.row').attr('data-rowcolor'));
-  });
-  $('.row > .ratio').each( function ( i, el) {
-	  $(this).find('p').html(contrastRatio($(this).parent('.row').attr('data-rowcolor'), "#fff"));
-	});
-  $('.row > .pass').each( function ( i, el) {
-    $(this).find('p').html(isPassing(contrastRatio($(this).parent('.row').attr('data-rowcolor'), "#fff")));
-	});
 
-  $.getJSON("js/colors.json", function (data) {
-        var arrItems = [];      // THE ARRAY TO STORE JSON ITEMS.
-        $.each(data, function (index, value) {
-            arrItems.push(value);       // PUSH THE VALUES INSIDE THE ARRAY.
-        });
 
-        // EXTRACT VALUE FOR TABLE HEADER.
-        var col = [];
-        for (var i = 0; i < arrItems.length; i++) {
-            for (var key in arrItems[i]) {
-                if (col.indexOf(key) === -1) {
-                    col.push(key);
-                }
-            }
-        }
+  function updateColor(color) {
+    var hexColor = "transparent";
+    if (color) {
+      hexColor = color.toHexString();
+    }
+    $('.background').css('background-color', hexColor);
 
-        // CREATE DYNAMIC TABLE.
-        var table = document.createElement("table");
-
-        // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
-
-        var tr = table.insertRow(-1);                   // TABLE ROW.
-
-        for (var i = 0; i < col.length; i++) {
-            var th = document.createElement("th");      // TABLE HEADER.
-            th.innerHTML = col[i];
-            tr.appendChild(th);
-        }
-
-        // ADD JSON DATA TO THE TABLE AS ROWS.
-        for (var i = 0; i < arrItems.length; i++) {
-
-            tr = table.insertRow(-1);
-
-            for (var j = 0; j < col.length; j++) {
-                var tabCell = tr.insertCell(-1);
-                tabCell.innerHTML = arrItems[i][col[j]];
-            }
-        }
-
-        // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
-        var divContainer = document.getElementById("showData");
-        divContainer.innerHTML = "";
-        divContainer.appendChild(table);
+    $('.row > .ratio').each( function ( i, el) {
+      $(this).find('p').html(contrastRatio($(this).parent('.row').attr('data-rowcolor'), hexColor));
     });
+    $('.row > .pass').each( function ( i, el) {
+      $(this).find('p').html(isPassing(contrastRatio($(this).parent('.row').attr('data-rowcolor'), hexColor)));
+    });
+  }
+
+  // $('.row > .hex').each( function ( i, el) {
+	//   $(this).find('p').html($(this).parent('.row').attr('data-rowcolor'));
+	//  });
+  // $('.row > .rgb').each( function (i, el) {
+  //   $(this).find('p').html('(' + hexToRgb($(this).parent('.row').attr('data-rowcolor')) + ')');
+  // });
+	// $('.row > .sample').each( function ( i, el) {
+	// 	$(this).css('background-color', $(this).parent('.row').attr('data-rowcolor'));
+	// });
+  // $('.row > .background').each( function ( i, el) {
+  //   $(this).find('p').html("TEST");
+  //   $(this).css('color', $(this).parent('.row').attr('data-rowcolor'));
+  // });
+
 
 
 })
