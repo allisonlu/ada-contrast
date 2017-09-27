@@ -1,9 +1,3 @@
-/*
-TODO:
- - access currentColor outside of function
- - create contrast ratio function
-*/
-
 // given a string hex, converts hex to rgb, returns an array
 function hexToRgb(hex) {
     while (hex.charAt(0)=='#') {
@@ -55,7 +49,7 @@ $.fn.slideFadeToggle = function(easing, callback) {
 
 /*****************************************************/
 
-// given some rgb value, converts standard rgb to values ready for luminance calculation
+// given some rgb value, converts standard rgb to values ready for luminance calculation, returns number
 function getStandard(val) {
 	var standard = val/255;
 
@@ -97,6 +91,7 @@ function contrastRatio(color1, color2) {
 	return round(ratio);
 }
 
+// determines whether contrast ratio is passing according to ada web standards
 function isPassing(ratio) {
   if (ratio >= 7.99) {
     return "Passing - Level AAA";
@@ -108,73 +103,6 @@ function isPassing(ratio) {
     return "Failing";
   }
 }
-
-// console.log(contrastRatio("#3284bf", "#fff"));
-// console.log(isPassing(contrastRatio("#3284bf", "#fff")));
-
-
-// var colors = [{
-//     "Hex": "#3284bf",
-//     "RGB": "",
-//     "Sample": "",
-//     "Background": "",
-//     "Contrast Ratio": "",
-//     "P/NP": ""
-//   }, {
-//     "Hex": "#ffc828",
-//     "RGB": "",
-//     "Sample": "",
-//     "Background": "",
-//     "Contrast Ratio": "",
-//     "P/NP": ""
-//   }];
-//
-// function makeTable(data) {
-//   // extract header data
-//   var col = [];
-//   for (var i=0; i<data.length; i++) {
-//     for (var key in data[i]) {
-//       // prevents duplicates
-//       if (col.indexOf(key)===-1) {
-//         col.push(key);
-//       }
-//     }
-//   }
-//
-//   // create table
-//   var table = document.createElement("table");
-//   var tableBody = document.createElement("tbody");
-//   table.appendChild(tableBody);
-//   var tr = document.createElement('tr');
-//   tableBody.appendChild(tr);
-//
-//   // populate header
-//   for (var i=0; i<col.length; i++) {
-//     var th = document.createElement("th");
-//     th.appendChild(document.createTextNode(col[i]));
-//     tr.appendChild(th);
-//   }
-//
-//   // add data
-//   for (var i=0; i<data.length; i++) {
-//     var tr = document.createElement("tr");
-//
-//     for (var j=0; j<col.length; j++) {
-//       var td = document.createElement("td");
-//       td.appendChild(document.createTextNode(data[i][col[j]]));
-//       tr.appendChild(td);
-//     }
-//     tableBody.appendChild(tr);
-//   }
-//
-//   // add data to html
-//   var container = document.getElementById("showData");
-//   container.innerHTML = "";
-//   container.appendChild(table);
-//
-// }
-//
-// makeTable(colors);
 
 
 $(document).ready(function() {
@@ -201,19 +129,55 @@ $(document).ready(function() {
       ]
   });
 
-  // $("#picker").on('move.spectrum', function(e, tinycolor) {
-  //
-  // });
+  var headers = ["hex", "rgb", "sample", "background", "ratio", "pass"];
+  var colors = ["#3284bf", "#ffc828", "#ffe600", "#0054a6", "#00a5e5", "#fff200", "#35b558", "#ec008c", "#20c4f4", "#6658a6", "#347bad"];
 
-  var classNames = ["hex", "rgb", "sample", "background", "ratio", "pass"];
+  // populate table with rows
+  for (color in colors) {
+    $('tbody').append(document.createElement('tr'));
+    $('tbody > tr:not(:first-child)').addClass('row');
+  }
 
-  // populate table
-  $('.row').each( function(i,el) {
-    $(this).append(document.createElement('td'));
+  // add classes to rows
+  $('.row').each( function(i) {
+    // adding cells
+    for(var i=0; i<headers.length; i++) {
+      $(this).append(document.createElement('td'));
+      $('td:last-child').addClass('cell').addClass(headers[i]);
+    }
+
+    // takes care of bug: last cell contains all headers as classes
+    if ($('td:last-child').hasClass('hex rgb sample background ratio')) {
+      $('td:last-child').removeClass("hex rgb sample background ratio");
+    }
 
   });
 
+  // populate with DATA!!
+  $('.row').each( function(i) {
+    $('.hex').each( function (i) {
+      $(this).html("<p>" + colors[i] + "</p>");
+    });
 
+    $('.rgb').each( function (i) {
+      $(this).html("<p>(" + hexToRgb(colors[i]) + ")</p>");
+    });
+    console.log(colors[i]);
+
+    $('.sample').each( function (i) {
+      $(this).css('background-color', colors[i]);
+    });
+
+    $('.background').each( function (i) {
+      $(this).html("<p>TEST</p>");
+      $(this).css('color', colors[i]);
+    });
+    
+   });
+
+
+  // updateColor updates color of background cell as user chooses a color
+  // also updates contrast ratio and whether or not it's passing
   function updateColor(color) {
     var hexColor = "transparent";
     if (color) {
@@ -221,28 +185,13 @@ $(document).ready(function() {
     }
     $('.background').css('background-color', hexColor);
 
-    $('.row > .ratio').each( function ( i, el) {
-      $(this).find('p').html(contrastRatio($(this).parent('.row').attr('data-rowcolor'), hexColor));
+    $('.ratio').each( function (i) {
+      $(this).html(contrastRatio(colors[i], hexColor));
     });
-    $('.row > .pass').each( function ( i, el) {
-      $(this).find('p').html(isPassing(contrastRatio($(this).parent('.row').attr('data-rowcolor'), hexColor)));
+
+    $('.pass').each( function (i) {
+      $(this).html(isPassing(contrastRatio(colors[i], hexColor)));
     });
   }
-
-  // $('.row > .hex').each( function ( i, el) {
-	//   $(this).find('p').html($(this).parent('.row').attr('data-rowcolor'));
-	//  });
-  // $('.row > .rgb').each( function (i, el) {
-  //   $(this).find('p').html('(' + hexToRgb($(this).parent('.row').attr('data-rowcolor')) + ')');
-  // });
-	// $('.row > .sample').each( function ( i, el) {
-	// 	$(this).css('background-color', $(this).parent('.row').attr('data-rowcolor'));
-	// });
-  // $('.row > .background').each( function ( i, el) {
-  //   $(this).find('p').html("TEST");
-  //   $(this).css('color', $(this).parent('.row').attr('data-rowcolor'));
-  // });
-
-
 
 })
